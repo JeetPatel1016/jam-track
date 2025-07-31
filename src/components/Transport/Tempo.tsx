@@ -1,8 +1,11 @@
 import { Button, Text } from "@radix-ui/themes";
-import { useState, useRef } from "react";
+import { useRef } from "react";
+import { useAppDispatch, useAppSelector } from "@/hooks/redux";
+import { setTempo } from "@/state/slices/projectSlice";
 
 export default function BPMControl() {
-  const [bpm, setBpm] = useState(120);
+  const { settings } = useAppSelector((state) => state.project);
+  const dispatch = useAppDispatch();
   const isDragging = useRef(false);
   const startY = useRef(0);
   const startValue = useRef(0);
@@ -10,7 +13,7 @@ export default function BPMControl() {
   const handleMouseDown = (e: React.MouseEvent) => {
     isDragging.current = true;
     startY.current = e.clientY;
-    startValue.current = bpm;
+    startValue.current = settings.tempo;
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseup", handleMouseUp);
   };
@@ -23,7 +26,7 @@ export default function BPMControl() {
       30,
       Math.min(300, startValue.current + deltaY * step)
     );
-    setBpm(newValue);
+    dispatch(setTempo(Math.round(newValue)));
   };
 
   const handleMouseUp = () => {
@@ -45,7 +48,7 @@ export default function BPMControl() {
       }}
       title="Drag up/down to adjust BPM"
     >
-      <Text style={{ color: "white" }}>{Math.round(bpm)}</Text>
+      <Text style={{ color: "white" }}>{settings.tempo}</Text>
       <Text size={"1"} weight={"regular"}>
         bpm
       </Text>

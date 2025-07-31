@@ -2,8 +2,12 @@ import { Flex, IconButton, Slider } from "@radix-ui/themes";
 import { Play, Redo2, Repeat, SkipBack, Undo2, Volume2 } from "lucide-react";
 import Metronome from "./Metronome";
 import BPMControl from "./Tempo";
+import { useAppDispatch, useAppSelector } from "@/hooks/redux";
+import { setVolume } from "@/state/slices/projectSlice";
 
 export default function Controls() {
+  const { volume } = useAppSelector((state) => state.project.settings);
+  const dispatch = useAppDispatch();
   return (
     <Flex>
       {/* Undo buttons */}
@@ -35,7 +39,11 @@ export default function Controls() {
       {/* Volume Slider */}
       <Flex gap={"4"} width={"200px"} align={"center"}>
         <Volume2 />
-        <Slider defaultValue={[75]} size={"1"} />
+        <Slider
+          defaultValue={[volume]}
+          size={"1"}
+          onValueCommit={(value) => dispatch(setVolume(value[0]))}
+        />
       </Flex>
     </Flex>
   );

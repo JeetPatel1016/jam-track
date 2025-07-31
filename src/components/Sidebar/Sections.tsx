@@ -1,12 +1,14 @@
 import {
+  Button,
   Card,
+  DropdownMenu,
   Flex,
   IconButton,
   ScrollArea,
   Text,
   TextField,
 } from "@radix-ui/themes";
-import { GripVertical } from "lucide-react";
+import { EllipsisVertical, GripVertical, Plus } from "lucide-react";
 import {
   DndContext,
   closestCenter,
@@ -16,47 +18,29 @@ import {
 } from "@dnd-kit/core";
 import type { DragEndEvent } from "@dnd-kit/core";
 import {
-  arrayMove,
+  // arrayMove,
   SortableContext,
   useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useState, type CSSProperties } from "react";
+import { useAppDispatch, useAppSelector } from "@/hooks/redux";
+import {
+  addSection,
+  reorderSections,
+  updateSection,
+} from "../../state/slices/projectSlice";
 
 export default function Sections() {
-  const [sections, setSections] = useState([
-    { id: "section-1", name: "Intro", bars: 8 },
-    { id: "section-2", name: "Verse", bars: 12 },
-    { id: "section-3", name: "Chorus", bars: 16 },
-    { id: "section-4", name: "Bridge", bars: 8 },
-    { id: "section-5", name: "Solo", bars: 12 },
-    { id: "section-6", name: "Outro", bars: 8 },
-  ]);
+  const { sections } = useAppSelector((state) => state.project);
+  const dispatch = useAppDispatch();
 
+  const [selectedSectionId, setSelectedSectionId] = useState<string | null>(
+    null
+  );
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingValue, setEditingValue] = useState("");
-
-  function handleStartEdit(id: string, currentName: string) {
-    setEditingId(id);
-    setEditingValue(currentName);
-  }
-
-  function handleChangeEdit(e: React.ChangeEvent<HTMLInputElement>) {
-    setEditingValue(e.target.value);
-  }
-
-  function handleFinishEdit() {
-    if (editingId) {
-      setSections((prev) =>
-        prev.map((s) =>
-          s.id === editingId ? { ...s, name: editingValue.trim() || s.name } : s
-        )
-      );
-    }
-    setEditingId(null);
-    setEditingValue("");
-  }
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -71,45 +55,145 @@ export default function Sections() {
     if (over && active.id !== over.id) {
       const oldIndex = sections.findIndex((s) => s.id === active.id);
       const newIndex = sections.findIndex((s) => s.id === over.id);
-      setSections((items) => arrayMove(items, oldIndex, newIndex));
+      dispatch(reorderSections({ oldIndex, newIndex }));
     }
   }
 
+  function handleStartEdit(id: string, currentName: string) {
+    setEditingId(id);
+    setEditingValue(currentName);
+  }
+
+  function handleChangeEdit(e: React.ChangeEvent<HTMLInputElement>) {
+    setEditingValue(e.target.value);
+  }
+
+  function handleFinishEdit() {
+    if (editingId) {
+      const section = sections.find((s) => s.id === editingId);
+      if (section) {
+        dispatch(
+          updateSection({ ...section, name: editingValue.trim() || "Untitled" })
+        );
+      }
+    }
+    setEditingId(null);
+    setEditingValue("");
+  }
+
   return (
-    <ScrollArea type="auto" scrollbars="vertical" style={{ height: "500px" }}>
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-      >
-        <SortableContext
-          items={sections.map((s) => s.id)}
-          strategy={verticalListSortingStrategy}
+    <Flex direction={"column"} style={{ height: "100%" }}>
+      <Flex p={"4"}>
+        <Button
+          onClick={() => dispatch(addSection())}
+          size={"1"}
+          color="gray"
+          highContrast
+          variant="soft"
         >
-          <Flex
-            direction={"column"}
-            style={{ width: "100%" }}
-            gap="4"
-            p={"4"}
-            pt="0"
+          <Plus size={16} />
+          Add Section
+        </Button>
+        {/* Dropdown menu here */}
+        <DropdownMenu.Root>
+          <DropdownMenu.Trigger>
+            <IconButton
+              variant="soft"
+              highContrast
+              radius="large"
+              size="1"
+              color="gray"
+              style={{ marginLeft: "auto" }}
+            >
+              <EllipsisVertical size={14} />
+            </IconButton>
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content
+            align="end"
+            sideOffset={10}
+            style={{ minWidth: "150px" }}
           >
-            {sections.map((section) => (
-              <SortableSectionCard
-                key={section.id}
-                id={section.id}
-                name={section.name}
-                bars={section.bars}
-                isEditing={editingId === section.id}
-                editingValue={editingValue}
-                onStartEdit={() => handleStartEdit(section.id, section.name)}
-                onChangeEdit={handleChangeEdit}
-                onFinishEdit={handleFinishEdit}
-              />
-            ))}
-          </Flex>
-        </SortableContext>
-      </DndContext>
-    </ScrollArea>
+            <DropdownMenu.Item>Cut</DropdownMenu.Item>
+            <DropdownMenu.Item>Copy</DropdownMenu.Item>
+            <DropdownMenu.Item>Paste</DropdownMenu.Item>
+
+            <DropdownMenu.Separator />
+            <DropdownMenu.Item color="ruby">Delete</DropdownMenu.Item>
+          </DropdownMenu.Content>
+        </DropdownMenu.Root>
+      </Flex>
+      <Flex
+        direction={"column"}
+        align="center"
+        justify="center"
+        style={{ height: "100%" }}
+      >
+        <>
+          {sections.length ? (
+            <ScrollArea
+              type="auto"
+              scrollbars="vertical"
+              style={{ height: "500px" }}
+            >
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext
+                  items={sections.map((s) => s.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <Flex
+                    direction={"column"}
+                    style={{ width: "100%" }}
+                    gap="4"
+                    p={"4"}
+                    pt="0"
+                  >
+                    {sections.map((section) => (
+                      <SortableSectionCard
+                        key={section.id}
+                        id={section.id}
+                        name={section.name}
+                        bars={section.bars}
+                        isEditing={editingId === section.id}
+                        editingValue={editingValue}
+                        onStartEdit={() =>
+                          handleStartEdit(section.id, section.name)
+                        }
+                        onChangeEdit={handleChangeEdit}
+                        onFinishEdit={handleFinishEdit}
+                        selected={selectedSectionId === section.id}
+                        onSelect={() => setSelectedSectionId(section.id)}
+                      />
+                    ))}
+                  </Flex>
+                </SortableContext>
+              </DndContext>
+            </ScrollArea>
+          ) : (
+            <Flex
+              direction={"column"}
+              align="center"
+              justify="center"
+              style={{ height: "100%" }}
+            >
+              <Text
+                size={"4"}
+                weight={"medium"}
+                style={{ color: "var(--gray-12)" }}
+              >
+                No Sections Added
+              </Text>
+              <Text size={"2"} style={{ color: "var(--gray-11)" }}>
+                Please create a section to get started.
+              </Text>
+            </Flex>
+          )}
+        </>
+      </Flex>
+    </Flex>
   );
 }
 
@@ -122,6 +206,8 @@ interface SortableSectionCardProps {
   onStartEdit: () => void;
   onChangeEdit: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onFinishEdit: () => void;
+  selected?: boolean;
+  onSelect?: () => void;
 }
 
 function SortableSectionCard({
@@ -133,6 +219,8 @@ function SortableSectionCard({
   onStartEdit,
   onChangeEdit,
   onFinishEdit,
+  selected,
+  onSelect,
 }: SortableSectionCardProps) {
   const {
     attributes,
@@ -157,7 +245,17 @@ function SortableSectionCard({
   }
 
   return (
-    <Card ref={setNodeRef} style={style} {...attributes}>
+    <Card
+      ref={setNodeRef}
+      style={{
+        ...style,
+        border: selected ? "2px solid var(--teal-10)" : undefined,
+        boxShadow: selected ? "0 0 0 2px var(--teal-8)" : undefined,
+        cursor: "pointer",
+      }}
+      {...attributes}
+      onClick={onSelect}
+    >
       <Flex
         direction="row"
         justify={"between"}
@@ -179,7 +277,7 @@ function SortableSectionCard({
             </TextField.Root>
           ) : (
             <Text
-              size={"5"}
+              size={"4"}
               weight={"medium"}
               onDoubleClick={onStartEdit}
               style={{ cursor: "pointer" }}

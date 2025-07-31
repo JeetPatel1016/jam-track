@@ -46,8 +46,9 @@ export default function MetronomeControl() {
               style={{ padding: 0 }}
               aria-label="Open metronome controls"
               onClick={(e) => e.stopPropagation()} // prevent toggle
+              asChild
             >
-              <ChevronDown size={16} />
+              <ChevronDown size={16} style={{ fill: "var(--gray-12)" }} />
             </IconButton>
           </Popover.Trigger>
         </Button>

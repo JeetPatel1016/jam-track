@@ -1,6 +1,6 @@
 import { Flex } from "@radix-ui/themes";
-import Transport from "../components/Transport/Transport";
-import Controls from "../components/Transport/Controls";
+import Transport from "@/components/Transport/Transport";
+import Controls from "@/components/Transport/Controls";
 
 export default function Header() {
   return (
