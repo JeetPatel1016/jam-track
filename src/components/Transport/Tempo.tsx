@@ -45,11 +45,14 @@ export default function BPMControl() {
       style={{
         cursor: "ns-resize",
         userSelect: "none",
+        width: "100%",
+        maxWidth: "100px",
+        display: "flex",
       }}
       title="Drag up/down to adjust BPM"
     >
-      <Text style={{ color: "white" }}>{settings.tempo}</Text>
-      <Text size={"1"} weight={"regular"}>
+      <Text align="right" style={{ color: "white" }}>{settings.tempo}</Text>
+      <Text ml="auto" size={"1"} weight={"regular"}>
         bpm
       </Text>
     </Button>

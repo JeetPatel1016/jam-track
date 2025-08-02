@@ -28,17 +28,18 @@ import { useState, type CSSProperties } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import {
   addSection,
+  duplicateSection,
+  removeSection,
   reorderSections,
   updateSection,
-} from "../../state/slices/projectSlice";
+} from "@/state/slices/projectSlice";
+import { selectSection } from "@/state/slices/workspaceSlice";
 
 export default function Sections() {
   const { sections } = useAppSelector((state) => state.project);
+  const { selectedSectionId } = useAppSelector((state) => state.workspace);
   const dispatch = useAppDispatch();
 
-  const [selectedSectionId, setSelectedSectionId] = useState<string | null>(
-    null
-  );
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingValue, setEditingValue] = useState("");
 
@@ -96,7 +97,7 @@ export default function Sections() {
         </Button>
         {/* Dropdown menu here */}
         <DropdownMenu.Root>
-          <DropdownMenu.Trigger>
+          <DropdownMenu.Trigger disabled={!selectedSectionId}>
             <IconButton
               variant="soft"
               highContrast
@@ -113,19 +114,30 @@ export default function Sections() {
             sideOffset={10}
             style={{ minWidth: "150px" }}
           >
-            <DropdownMenu.Item>Cut</DropdownMenu.Item>
-            <DropdownMenu.Item>Copy</DropdownMenu.Item>
-            <DropdownMenu.Item>Paste</DropdownMenu.Item>
-
-            <DropdownMenu.Separator />
-            <DropdownMenu.Item color="ruby">Delete</DropdownMenu.Item>
+            <DropdownMenu.Item
+              onClick={() => {
+                dispatch(duplicateSection(selectedSectionId!));
+                dispatch(selectSection(null));
+              }}
+            >
+              Duplicate
+            </DropdownMenu.Item>
+            <DropdownMenu.Item
+              color="ruby"
+              onClick={() => {
+                dispatch(removeSection(selectedSectionId!));
+                dispatch(selectSection(null));
+              }}
+            >
+              Delete
+            </DropdownMenu.Item>
           </DropdownMenu.Content>
         </DropdownMenu.Root>
       </Flex>
       <Flex
         direction={"column"}
         align="center"
-        justify="center"
+        justify="start"
         style={{ height: "100%" }}
       >
         <>
@@ -149,14 +161,14 @@ export default function Sections() {
                     style={{ width: "100%" }}
                     gap="4"
                     p={"4"}
-                    pt="0"
+                    pt="2"
                   >
                     {sections.map((section) => (
                       <SortableSectionCard
                         key={section.id}
                         id={section.id}
                         name={section.name}
-                        bars={section.bars}
+                        chordsCount={section.chords?.length || 0}
                         isEditing={editingId === section.id}
                         editingValue={editingValue}
                         onStartEdit={() =>
@@ -165,7 +177,7 @@ export default function Sections() {
                         onChangeEdit={handleChangeEdit}
                         onFinishEdit={handleFinishEdit}
                         selected={selectedSectionId === section.id}
-                        onSelect={() => setSelectedSectionId(section.id)}
+                        onSelect={() => dispatch(selectSection(section.id))}
                       />
                     ))}
                   </Flex>
@@ -200,7 +212,7 @@ export default function Sections() {
 interface SortableSectionCardProps {
   id: string;
   name: string;
-  bars: number;
+  chordsCount: number;
   isEditing: boolean;
   editingValue: string;
   onStartEdit: () => void;
@@ -213,7 +225,7 @@ interface SortableSectionCardProps {
 function SortableSectionCard({
   id,
   name,
-  bars,
+  chordsCount,
   isEditing,
   editingValue,
   onStartEdit,
@@ -288,7 +300,7 @@ function SortableSectionCard({
             </Text>
           )}
           <Text size="2" style={{ color: "var(--gray-11)" }}>
-            {bars} Bars
+            {chordsCount} Chord{chordsCount === 1 ? "" : "s"}
           </Text>
         </Flex>
         <span {...listeners} style={{ display: "flex" }}>

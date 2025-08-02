@@ -31,13 +31,16 @@ export default function Title() {
           onChange={handleChange}
           onBlur={handleBlur}
           size={"2"}
+          style={{ textAlign: "center" }}
         />
       ) : (
-        <Box px={"2"}>
+        <Box px={"4"}>
           <Text
+            as="p"
+            size={"5"}
             weight={"medium"}
             onClick={handleClick}
-            style={{ cursor: "pointer" }}
+            style={{ cursor: "pointer", color: "#ffffff" }}
           >
             {title}
           </Text>

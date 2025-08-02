@@ -58,7 +58,7 @@ export default function Tracks() {
         <Flex
           direction={"column"}
           align="center"
-          justify="center"
+          justify="start"
           style={{ height: "100%" }}
         >
           {/* Here */}
