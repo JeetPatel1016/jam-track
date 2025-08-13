@@ -5,11 +5,23 @@ import MainContent from "@/components/Workspace/MainContent";
 import { useAppDispatch, useAppSelector } from "@/hooks/redux";
 import type { ViewType } from "@/types";
 import { changeView } from "@/state/slices/workspaceSlice";
+import { useEffect, useRef } from "react";
+import { TrackManager } from "@/audio/TrackManager";
 
 export default function AppLayout() {
-  // Can move this to workspace state along with selected Section
+  const trackManagerRef = useRef<TrackManager | null>(null);
   const { view } = useAppSelector((state) => state.workspace);
   const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (!trackManagerRef.current) {
+      trackManagerRef.current = new TrackManager();
+    }
+    return () => {
+      trackManagerRef.current?.dispose?.();
+    };
+  }, []);
+
   return (
     <div
       style={{

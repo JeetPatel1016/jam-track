@@ -78,7 +78,7 @@ export default function Tracks() {
                 pt="0"
               >
                 {tracks.map((track) => (
-                  <TrackCard track={track} />
+                  <TrackCard key={track.id} track={track} />
                 ))}
               </Flex>
             </ScrollArea>
