@@ -25,10 +25,12 @@ import {
   duplicateTrack,
   removeTrack,
   updateTrack,
-} from "@/state/slices/projectSlice";
+  muteTrack,
+  soloTrack,
+} from "@/state/slices/tracksSlice";
 
 export default function Tracks() {
-  const { tracks } = useAppSelector((state) => state.project);
+  const tracks = useAppSelector((state) => state.tracks);
   const dispatch = useAppDispatch();
   return (
     <>
@@ -173,10 +175,24 @@ function TrackCard({ track }: { track: Track }) {
 
         {/* Mute/Solo */}
         <Flex>
-          <IconButton variant="soft" size="1" color="gray" radius="none">
+          <IconButton
+            variant={track.mute ? "solid" : "soft"}
+            size="1"
+            color={track.mute ? "red" : "gray"}
+            radius="none"
+            onClick={() => dispatch(muteTrack(track.id))}
+            aria-label="Mute"
+          >
             <Text size="1">M</Text>
           </IconButton>
-          <IconButton variant="soft" size="1" color="gray" radius="none">
+          <IconButton
+            variant={track.solo ? "solid" : "soft"}
+            size="1"
+            color={track.solo ? "teal" : "gray"}
+            radius="none"
+            onClick={() => dispatch(soloTrack(track.id))}
+            aria-label="Solo"
+          >
             <Text size="1">S</Text>
           </IconButton>
         </Flex>

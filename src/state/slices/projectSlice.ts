@@ -1,13 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-import type { Chord, Project, Section, Track, TrackType } from "@/types";
-import { TRACK_TYPE_PATTERNS } from "@/lib/patterns";
+import type { Chord, Project, Section } from "@/types";
 import { nanoid } from "nanoid";
 
 const defaultProject: Project = {
   title: "Untitled Jam Track",
   sections: [],
-  tracks: [],
   settings: { tempo: 120, volume: 80 },
 };
 
@@ -73,30 +71,6 @@ export const projectSlice = createSlice({
       const movedSection = state.sections[oldIndex];
       state.sections.splice(oldIndex, 1);
       state.sections.splice(newIndex, 0, movedSection);
-    },
-    // Actions related to tracks
-    addTrack: (state, action: PayloadAction<TrackType>) => {
-      const patterns = TRACK_TYPE_PATTERNS[action.payload] || [];
-      const newTrack: Track = {
-        id: `track-${nanoid()}`,
-        name: action.payload,
-        volume: 80,
-        pattern: patterns[0] || "default",
-      };
-      state.tracks.push(newTrack);
-    },
-    updateTrack: (state, action: PayloadAction<Track>) => {
-      const index = state.tracks.findIndex((t) => t.id === action.payload.id);
-      if (index !== -1) {
-        state.tracks[index] = action.payload;
-      }
-    },
-    removeTrack: (state, action: PayloadAction<string>) => {
-      state.tracks = state.tracks.filter((t) => t.id !== action.payload);
-    },
-    duplicateTrack: (state, action: PayloadAction<Track>) => {
-      const newTrack = { ...action.payload, id: `track-${nanoid()}` };
-      state.tracks.push(newTrack);
     },
     // Actions related to chords
     addChord: (state, action: PayloadAction<string>) => {
@@ -189,10 +163,6 @@ export const {
   removeSection,
   updateSection,
   reorderSections,
-  addTrack,
-  removeTrack,
-  duplicateTrack,
-  updateTrack,
   addChord,
   removeChord,
   updateChord,

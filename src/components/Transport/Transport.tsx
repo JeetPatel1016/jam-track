@@ -4,9 +4,10 @@ import { Save, Share } from "lucide-react";
 import Brand from "./Brand";
 import Title from "./Title";
 import { useAppSelector } from "@/hooks/redux";
+import { selectProjectData } from "@/state/store";
 
 export default function Transport() {
-  const project = useAppSelector((state) => state.project);
+  const project = useAppSelector(selectProjectData);
 
   const downloadProject = () => {
     const blob = new Blob([JSON.stringify(project)], {
