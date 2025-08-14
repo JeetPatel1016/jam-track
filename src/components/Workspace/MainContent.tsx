@@ -14,13 +14,19 @@ import {
   Text,
 } from "@radix-ui/themes";
 import { Delete, GripVertical, Plus, X } from "lucide-react";
-import { useState, type CSSProperties, type MouseEventHandler } from "react";
+import {
+  Fragment,
+  useState,
+  type CSSProperties,
+  type MouseEventHandler,
+} from "react";
 import { updateChord } from "@/state/slices/projectSlice";
 import {
   KEY_OPTIONS,
   CHORD_TYPE_OPTIONS,
   INVERSION_OPTIONS,
   DURATION_OPTIONS,
+  GROUP_ORDER,
 } from "@/lib/chordOptions";
 import type { Inversion, Key } from "@/types";
 import {
@@ -259,11 +265,33 @@ export default function MainContent() {
                         style={{ width: "100%" }}
                       />
                       <Select.Content>
-                        {CHORD_TYPE_OPTIONS.map((opt) => (
-                          <Select.Item key={opt.value} value={opt.value}>
-                            {opt.label}
-                          </Select.Item>
-                        ))}
+                        {GROUP_ORDER.map((category, groupIndex) => {
+                          if (
+                            !CHORD_TYPE_OPTIONS[category] ||
+                            CHORD_TYPE_OPTIONS[category].length === 0
+                          ) {
+                            return null;
+                          }
+
+                          return (
+                            <Fragment key={category}>
+                              {groupIndex > 0 && <Select.Separator />}
+                              <Select.Group>
+                                <Select.Label>
+                                  {category.replace("_", " ").toUpperCase()}
+                                </Select.Label>
+                                {CHORD_TYPE_OPTIONS[category].map((chord) => (
+                                  <Select.Item
+                                    key={chord.value}
+                                    value={chord.value}
+                                  >
+                                    {chord.label}
+                                  </Select.Item>
+                                ))}
+                              </Select.Group>
+                            </Fragment>
+                          );
+                        })}
                       </Select.Content>
                     </Select.Root>
                   </div>

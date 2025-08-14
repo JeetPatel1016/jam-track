@@ -1,3 +1,5 @@
+import type { CHORD_DEFINITIONS_LOOKUP } from "@/lib/chords/chordDefinitions";
+
 export type Duration =
   | "1/4"
   | "2/4"
@@ -25,6 +27,18 @@ export type Key =
   | "B";
 
 export type Inversion = "Root" | "1st" | "2nd" | "3rd";
+export type ChordType = keyof typeof CHORD_DEFINITIONS_LOOKUP;
+
+
+export type ChordCategory =
+  | "triads"
+  | "sevenths"
+  | "suspended"
+  | "added_tone"
+  | "sixths"
+  | "extended"
+  | "altered"
+  | "other";
 
 export interface Chord {
   id: string;

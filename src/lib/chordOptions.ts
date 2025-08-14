@@ -1,5 +1,6 @@
-// Centralized dropdown options for chord editing
-import type { Key, Duration } from "@/types";
+// This file contains all the necessary options for dropdowns in chord editing
+import type { Key, Duration, ChordCategory } from "@/types";
+import { CHORD_DEFINITIONS_LOOKUP } from "./chords/chordDefinitions";
 
 export interface Option<T extends string> {
   value: T;
@@ -21,22 +22,24 @@ export const KEY_OPTIONS: Option<Key>[] = [
   { value: "B", label: "B" },
 ];
 
-export const CHORD_TYPE_OPTIONS = [
-  { value: "maj", label: "maj" },
-  { value: "min", label: "min" },
-  { value: "7", label: "7" },
-  { value: "maj7", label: "maj7" },
-  { value: "min7", label: "min7" },
-  { value: "dim", label: "dim" },
-  { value: "aug", label: "aug" },
-  { value: "sus2", label: "sus2" },
-  { value: "sus4", label: "sus4" },
-  { value: "add9", label: "add9" },
-  { value: "6", label: "6" },
-  { value: "9", label: "9" },
-  { value: "11", label: "11" },
-  { value: "13", label: "13" },
+// Derive UI options automatically
+export const GROUP_ORDER: ChordCategory[] = [
+  'triads',
+  'sevenths', 
+  'suspended',
+  'sixths',
+  'added_tone',
+  'extended'
 ];
+
+
+
+
+export const CHORD_TYPE_OPTIONS = Object.entries(CHORD_DEFINITIONS_LOOKUP).reduce((acc, [key, def]) => {
+  if (!acc[def.category]) acc[def.category] = [];
+  acc[def.category].push({ value: key, label: def.label });
+  return acc;
+}, {} as Record<ChordCategory, Array<{value: string, label: string}>>);
 
 export const INVERSION_OPTIONS = [
   { value: "Root", label: "Root" },
